@@ -74,7 +74,7 @@ def config_cython():
         ret = []
         path = "mxnet/cython"
         if os.name == 'nt':
-            library_dirs = ['mxnet', '../build/Release', '../build']
+            library_dirs = ['mxnet', '../build/Release', '../build/Debug', '../build']
             libraries = ['libmxnet']
         else:
             library_dirs = [os.path.dirname(p) for p in LIB_PATH]
