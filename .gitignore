@@ -117,9 +117,6 @@ cscope.files
 CMakeFiles
 cmake_install.cmake
 
-# Visual Studio Code
-.vscode
-
 # Mac OS X
 .DS_Store
 
