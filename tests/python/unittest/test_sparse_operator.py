@@ -1700,7 +1700,7 @@ def test_sparse_storage_fallback():
 def test_sparse_elementwise_sum():
     def check_sparse_elementwise_sum_with_shape(stypes, shape, n):
         # forward
-        inputs = [mx.symbol.Variable('arg%d' % i) for i in range(n)]
+        inputs = [mx.symbol.Variable(f'arg{i}') for i in range(n)]
         out = mx.symbol.sparse.add_n(*inputs, name='esum')
         arr = []
         arr_grad = [mx.nd.empty(shape, stype=stype) for stype in stypes]
@@ -1909,7 +1909,7 @@ def test_batchnorm_fallback():
 @pytest.mark.serial
 def test_dnnl_sparse():
     # This test is trying to create a race condition describedd in
-    # https://github.com/apache/incubator-mxnet/issues/10189
+    # https://github.com/apache/mxnet/issues/10189
     arr = mx.nd.random.uniform(shape=(10, 10, 32, 32))
     weight1 = mx.nd.random.uniform(shape=(10, 10, 3, 3))
     arr = mx.nd.Convolution(data=arr, weight=weight1, no_bias=True, kernel=(3, 3), num_filter=10)

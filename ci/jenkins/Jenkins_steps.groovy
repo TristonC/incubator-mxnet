@@ -263,7 +263,7 @@ def compile_unix_tensorrt_gpu(lib_name) {
         ws('workspace/build-tensorrt') {
           timeout(time: max_time, unit: 'MINUTES') {
             utils.init_git()
-            utils.docker_run('ubuntu_tensorrt_cu111', 'build_ubuntu_gpu_tensorrt', false)
+            utils.docker_run('ubuntu_tensorrt_cu114', 'build_ubuntu_gpu_tensorrt', false)
             utils.pack_lib(lib_name, mx_tensorrt_lib)
           }
         }
@@ -710,6 +710,22 @@ def test_unix_python3_gpu(lib_name) {
             utils.publish_test_coverage()
           } finally {
             utils.collect_test_results_unix('tests_gpu.xml', 'tests_python3_gpu.xml')
+          }
+        }
+      }
+    }]
+}
+
+def test_unix_python3_ampere_gpu(lib_name) {
+    return ['Python3: Ampere-GPU': {
+      node(NODE_LINUX_GPU_G5) {
+        ws('workspace/ut-python3-gpu') {
+          try {
+            utils.unpack_and_init(lib_name, mx_lib_cython)
+            python3_gpu_ut_cython('ubuntu_gpu_cu111')
+            utils.publish_test_coverage()
+          } finally {
+            utils.collect_test_results_unix('tests_gpu.xml', 'tests_python3_ampere_gpu.xml')
           }
         }
       }

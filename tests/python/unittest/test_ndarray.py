@@ -36,6 +36,7 @@ from numpy.testing import assert_allclose, assert_array_equal, assert_array_almo
 import mxnet.autograd
 from mxnet.base import integer_types
 from mxnet.ndarray.ndarray import py_slice
+from mxnet.amp.amp import bfloat16
 
 
 def check_with_uniform(uf, arg_shapes, dim=None, npuf=None, rmin=-10, type_list=[np.float32]):
@@ -153,7 +154,7 @@ def test_ndarray_setitem():
         assert x.shape == trivial_shape
         assert same(x.asnumpy(), x_np)
 
-    # test https://github.com/apache/incubator-mxnet/issues/16647
+    # test https://github.com/apache/mxnet/issues/16647
     dst = mx.nd.zeros((1, 3, 1))  # destination array
     src = [1, 2, 3]
     dst[0, :len(src), 0] = src
@@ -231,7 +232,7 @@ def test_ndarray_reshape():
     assert same(tensor.reshape(-1, 15).reshape(0, -4, 3, -1).asnumpy(), true_res.reshape(2, 3, 5).asnumpy())
     assert same(tensor.reshape(-1, 0).asnumpy(), true_res.reshape(10, 3).asnumpy())
     assert same(tensor.reshape(-1, 0, reverse=True).asnumpy(), true_res.reshape(6, 5).asnumpy())
-    # https://github.com/apache/incubator-mxnet/issues/18886
+    # https://github.com/apache/mxnet/issues/18886
     assertRaises(ValueError, tensor.reshape, (2, 3))
 
 def test_ndarray_flatten():
@@ -388,7 +389,7 @@ def test_ndarray_saveload(save_fn):
         for x, y in zip(data, data2 if save_fn is mx.nd.save else data2.values()):
             assert np.sum(x.asnumpy() != y.asnumpy()) == 0
         # test save/load as dict
-        dmap = {'ndarray xx %s' % i : x for i, x in enumerate(data)}
+        dmap = {f'ndarray xx {i}' : x for i, x in enumerate(data)}
         if save_fn is mx.nd.save:
             save_fn(fname, dmap)
         else:
@@ -465,7 +466,7 @@ def test_buffer_load():
                 # test garbage values
                 assertRaises(mx.base.MXNetError,  mx.nd.load_frombuffer, buf_data[:-10])
             # test load_buffer as dict
-            dmap = {'ndarray xx %s' % i : x for i, x in enumerate(data)}
+            dmap = {f'ndarray xx {i}' : x for i, x in enumerate(data)}
             fname = os.path.join(tmpdir, 'dict_{0}.param'.format(repeat))
             mx.nd.save(fname, dmap)
             with open(fname, 'rb') as dfile:
@@ -663,8 +664,8 @@ def test_reduce():
             if type(ndarray_ret) is mx.ndarray.NDArray:
                 ndarray_ret = ndarray_ret.asnumpy()
             assert (ndarray_ret.shape == numpy_ret.shape) or \
-                   (ndarray_ret.shape == (1,) and numpy_ret.shape == ()), "nd:%s, numpy:%s" \
-                                                         %(ndarray_ret.shape, numpy_ret.shape)
+                   (ndarray_ret.shape == (1,) and numpy_ret.shape == ()), \
+                   f"nd:{ndarray_ret.shape}, numpy:{numpy_ret.shape}"
             if check_dtype:
                 assert ndarray_ret.dtype == numpy_ret.dtype,\
                         (ndarray_ret.dtype, numpy_ret.dtype)
@@ -1665,7 +1666,7 @@ def test_ndarray_indexing():
 
 
 def test_assign_float_value_to_ndarray():
-    """Test case from https://github.com/apache/incubator-mxnet/issues/8668"""
+    """Test case from https://github.com/apache/mxnet/issues/8668"""
     a = np.array([47.844944], dtype=np.float32)
     b = mx.nd.zeros(1, dtype=np.float32)
     b[0] = a
@@ -1674,7 +1675,7 @@ def test_assign_float_value_to_ndarray():
     assert same(a, b.asnumpy())
 
 def test_assign_large_int_to_ndarray():
-    """Test case from https://github.com/apache/incubator-mxnet/issues/11639"""
+    """Test case from https://github.com/apache/mxnet/issues/11639"""
     a = mx.nd.zeros((4, 1), dtype=np.int32)
     a[1,0] = int(16800001)
     a[2,0] = int(16800002)
@@ -1685,7 +1686,7 @@ def test_assign_large_int_to_ndarray():
     assert same(b[1,0], 16800000)
 
 def test_assign_a_row_to_ndarray():
-    """Test case from https://github.com/apache/incubator-mxnet/issues/9976"""
+    """Test case from https://github.com/apache/mxnet/issues/9976"""
     H, W = 10, 10
     dtype = np.float32
     a_np = np.random.random((H, W)).astype(dtype)
@@ -2014,7 +2015,7 @@ def test_update_ops_mutation():
 
 
 # Problem :
-# https://github.com/apache/incubator-mxnet/pull/15768#issuecomment-532046408
+# https://github.com/apache/mxnet/pull/15768#issuecomment-532046408
 @pytest.mark.seed(412298777)
 @pytest.mark.serial
 def test_update_ops_mutation_failed_seed():
@@ -2058,7 +2059,7 @@ def test_load_saved_gpu_array_when_no_gpus_are_present():
     array.__setstate__(ndarray_state)
 
 def test_readable_bfloat16_print():
-    arr_bfloat16 = mx.nd.linspace(0, 1, 16).reshape((2, 2, 2, 2)).astype(np.dtype([('bfloat16', np.uint16)]))
+    arr_bfloat16 = mx.nd.linspace(0, 1, 16).reshape((2, 2, 2, 2)).astype(bfloat16)
     arr_uint16 = arr_bfloat16.asnumpy()
     arr_float = arr_bfloat16.astype(float)
     assert (arr_bfloat16.__str__() == arr_float.__str__())

@@ -36,13 +36,12 @@ description: >- # this means to ignore newlines until "baseurl:"
   A flexible and efficient library for deep learning.
 url: https://mxnet.apache.org
 twitter_username: apachemxnet
-github_username:  apache/incubator-mxnet
+github_username:  apache/mxnet
 youtube_username: apachemxnet
-google_analytics: UA-96378503-1
 baseurl: /versions/master
 versions:
   - master
-  - 1.9.0
+  - 1.9.1
   - 1.8.0
   - 1.7.0
   - 1.6.0

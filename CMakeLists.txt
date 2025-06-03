@@ -1,3 +1,20 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
 cmake_minimum_required(VERSION 3.13)
 
 # workaround to store CMAKE_CROSSCOMPILING because is getting reset by the project command
@@ -293,6 +310,7 @@ if(USE_TENSORRT)
           ${ONNX_PROTO_LIBRARY} ${ONNX_LIBRARY} ${PROTOBUF_LIBRARY})
 endif()
 
+include(GNUInstallDirs)
 if(USE_MKL_LAYERNORM)
   add_definitions(-DMXNET_USE_MKL_LAYERNORM=1)
 endif()
@@ -312,16 +330,16 @@ if(USE_ONEDNN)
   endif()
 
   function(load_onednn)
-    set(DNNL_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
-    set(DNNL_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
-    set(DNNL_ARCH_OPT_FLAGS "" CACHE INTERNAL "" FORCE)
-    set(DNNL_ENABLE_JIT_PROFILING OFF CACHE INTERNAL "" FORCE)
-    set(DNNL_LIBRARY_TYPE STATIC CACHE INTERNAL "" FORCE)
-    set(DNNL_ENABLE_CONCURRENT_EXEC ON CACHE INTERNAL "" FORCE)
-    set(DNNL_ENABLE_PRIMITIVE_CACHE ON CACHE INTERNAL "" FORCE)
+    set(ONEDNN_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
+    set(ONEDNN_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
+    set(ONEDNN_ARCH_OPT_FLAGS "" CACHE INTERNAL "" FORCE)
+    set(ONEDNN_ENABLE_JIT_PROFILING OFF CACHE INTERNAL "" FORCE)
+    set(ONEDNN_LIBRARY_TYPE STATIC CACHE INTERNAL "" FORCE)
+    set(ONEDNN_ENABLE_CONCURRENT_EXEC ON CACHE INTERNAL "" FORCE)
+    set(ONEDNN_ENABLE_PRIMITIVE_CACHE ON CACHE INTERNAL "" FORCE)
 
     if(NOT USE_OPENMP)
-      set(DNNL_CPU_RUNTIME SEQ CACHE INTERNAL "" FORCE)
+      set(ONEDNN_CPU_RUNTIME SEQ CACHE INTERNAL "" FORCE)
     endif()
 
     set(CMAKE_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/onednn")
@@ -959,7 +977,6 @@ endif()
 # NOTE: Public headers will be installed into ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}, see
 #       https://cmake.org/cmake/help/v3.13/variable/CMAKE_INSTALL_PREFIX.html
 #       https://cmake.org/cmake/help/v3.13/module/GNUInstallDirs.html
-include(GNUInstallDirs)
 install(TARGETS mxnet
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
           COMPONENT   MXNET_Runtime
